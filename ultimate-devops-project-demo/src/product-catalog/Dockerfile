@@ -1,19 +1,27 @@
-from golang:1.22-alpine as builder
+# Build stage
+FROM golang:1.22-alpine AS builder
 
-workdir /app
+WORKDIR /app
 
-copy . .
+COPY . .
 
-run go mod download
-
-run go build -o product-catalog  ./
-
-from alpine as release
-workdir /app
-copy ./products ./products
-copy --from=builder /app/product-catalog ./
+RUN go mod download
+RUN go build -o product-catalog ./
 
 
-env product_catalog_port 8088
+# Release stage
+FROM alpine AS release
 
-entrypoint ["./product-catalog"]
+WORKDIR /app
+
+# Copy built binary from builder
+COPY --from=builder /app/product-catalog ./
+
+# Copy any other required files
+COPY ./products ./products
+
+# Set environment variable in proper KEY=VALUE format
+ENV PRODUCT_CATALOG_PORT=8088
+
+# Set entrypoint
+ENTRYPOINT ["./product-catalog"]
