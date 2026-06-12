@@ -14,6 +14,6 @@ copy ./products ./products
 copy --from=builder /app/product-catalog ./
 
 
-env product_catalog_port=8088
+env product_catalog_port= 8088
 
 entrypoint ["./product-catalog"]
